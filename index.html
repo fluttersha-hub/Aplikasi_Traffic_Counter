@@ -142,7 +142,7 @@
                     Kembali
                 </button>
                 <button onclick="app.startSurvey()" class="w-2/3 bg-matcha-500 hover:bg-matcha-600 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-matcha-100 transition-all btn-press flex items-center justify-center text-sm sm:text-base">
-                    Mulai Menghitung
+                    Mulai!
                 </button>
             </div>
             
@@ -178,7 +178,7 @@
                     <div class="absolute top-0 right-0 bg-matcha-50 text-matcha-600 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-bl-xl border-b border-l border-matcha-100">Ketik (M)</div>
                     <div class="flex items-center gap-2 sm:gap-3 mb-1">
                         <i class="fas fa-motorcycle text-2xl sm:text-3xl text-matcha-500"></i>
-                        <h3 class="text-sm sm:text-base font-semibold text-gray-600">Sepeda Motor</h3>
+                        <h3 class="text-sm sm:text-base font-semibold text-gray-600">Motor</h3>
                     </div>
                     <span id="count-motor" class="text-4xl sm:text-6xl font-bold text-matcha-600 my-1">0</span>
                     
@@ -225,7 +225,7 @@
                     <i class="fas fa-check text-2xl sm:text-3xl text-matcha-500"></i>
                 </div>
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Rekapan Survei</h2>
-                <p class="text-xs sm:text-sm text-gray-500 mb-6">Hasil surveimu berhasil direkam!</p>
+                <p class="text-xs sm:text-sm text-gray-500 mb-6">Hasil surveimu sudah dicatat!</p>
                 
                 <div class="w-full bg-pink-50/50 rounded-2xl p-4 mb-6 text-left border border-pink-100">
                     <div class="flex justify-between items-center mb-2 border-b border-pink-100 pb-2">
@@ -233,7 +233,7 @@
                         <span id="summary-time" class="font-bold text-gray-800 text-xs sm:text-sm">0 menit</span>
                     </div>
                     <div class="flex justify-between items-center mb-2 border-b border-pink-100 pb-2">
-                        <span class="text-xs sm:text-sm text-gray-600">Sepeda Motor:</span>
+                        <span class="text-xs sm:text-sm text-gray-600">Motor:</span>
                         <span id="summary-motor" class="font-bold text-matcha-600 text-base sm:text-lg">0</span>
                     </div>
                     <div class="flex justify-between items-center">
@@ -244,7 +244,7 @@
                 
                 <div class="flex flex-col gap-3 w-full">
                     <button onclick="app.showScreen('dashboard'); app.loadRecaps()" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3.5 rounded-xl transition-all btn-press shadow-sm text-sm sm:text-base">
-                        Ke Dashboard Riwayat
+                        Ke Dashboard
                     </button>
                     <button onclick="app.showScreen('setup')" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-pink-200 transition-all btn-press text-sm sm:text-base">
                         <i class="fas fa-plus mr-1"></i> Tambah Survei Lagi
@@ -288,7 +288,7 @@
             <!-- Table of Records -->
             <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-pink-100 flex-1 flex flex-col overflow-hidden max-h-[50vh] sm:max-h-[55vh]">
                 <div class="px-4 sm:px-5 py-3 sm:py-4 border-b border-pink-50 flex justify-between items-center bg-gray-50/50">
-                    <h3 class="font-semibold text-gray-700 text-xs sm:text-sm">Semua Riwayat</h3>
+                    <h3 class="font-semibold text-gray-700 text-xs sm:text-sm">Riwayat</h3>
                     <button onclick="app.loadRecaps()" class="text-gray-400 hover:text-matcha-500 transition-colors" title="Muat ulang">
                         <i class="fas fa-sync-alt text-xs sm:text-sm"></i>
                     </button>
