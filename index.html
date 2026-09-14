@@ -366,28 +366,8 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'traffic-counter-app';
-        const firebaseConfig = {
-
-  apiKey: "AIzaSyAhA4ZEDiSDYwE9yXCIjfhElGh_4CDv00s",
-
-  authDomain: "test-mode-2afa1.firebaseapp.com",
-
-  projectId: "test-mode-2afa1",
-
-  storageBucket: "test-mode-2afa1.firebasestorage.app",
-
-  messagingSenderId: "745100666027",
-
-  appId: "1:745100666027:web:ab8a7cb651d32c74b203ee",
-
-  measurementId: "G-X3V08YRGR2"
-
-};
 
         const customToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
@@ -400,9 +380,9 @@
             console.error("Firebase init error", e);
         }
 
-        window.app = {
+window.app = {
             user: null,
-            userId: null,
+            userId: "local_user_device",
             username: "", 
             currentSurveyId: null,
             counts: { motor: 0, mobil: 0 },
@@ -412,20 +392,9 @@
             allSurveyors: new Set(),
             rawRecords: [],
             
-            init: async function() {
-                if(!auth) return;
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        this.user = user;
-                        this.userId = user.uid;
-                    }
-                });
-                try {
-                    if (customToken) await signInWithCustomToken(auth, customToken);
-                    else await signInAnonymously(auth);
-                } catch (error) {
-                    this.showNotif("Gagal terhubung ke server");
-                }
+            init: function() {
+                // Menggunakan localStorage untuk mengambil data awal jika ada
+                this.loadRecaps();
 
                 document.addEventListener('keydown', (e) => {
                     if(document.getElementById('screen-counting').classList.contains('active')) {
@@ -528,18 +497,11 @@
                 this.showScreen('login');
             },
 
-            checkActiveSurvey: async function() {
-                if(!this.userId || !this.username) return;
+            checkActiveSurvey: function() {
+                if(!this.username) return;
                 try {
-                    const surveyRef = collection(db, 'artifacts', appId, 'public', 'data', 'surveys');
-                    const snapshot = await getDocs(surveyRef);
-                    let activeDoc = null;
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        if(data.status === 'active' && data.surveyor === this.username) {
-                            activeDoc = { id: doc.id, ...data };
-                        }
-                    });
+                    const saved = JSON.parse(localStorage.getItem('traffic_surveys') || '[]');
+                    const activeDoc = saved.find(item => item.status === 'active' && item.surveyor === this.username);
 
                     if(activeDoc) {
                         document.getElementById('resume-notice').classList.remove('hidden');
@@ -571,17 +533,13 @@
                 this.showNotif("Melanjutkan survei sebelumnya");
             },
 
-            startSurvey: async function() {
+            startSurvey: function() {
                 const road = document.getElementById('input-road').value.trim();
                 const direction = document.getElementById('input-direction').value.trim() || "-";
                 const weather = document.getElementById('input-weather').value;
 
                 if(!road) {
                     this.showNotif("Harap isi nama jalan!");
-                    return;
-                }
-                if(!this.userId) {
-                    this.showNotif("Sedang menghubungkan ke server...");
                     return;
                 }
 
@@ -595,22 +553,23 @@
                 this.currentStartTime = now.toISOString();
                 this.startLiveTimer(this.currentStartTime);
 
+                this.currentSurveyId = 'survey_' + Date.now();
+                
                 try {
-                    this.currentSurveyId = `survey_${Date.now()}_${this.userId}`;
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', this.currentSurveyId);
-                    
-                    await setDoc(docRef, {
+                    let saved = JSON.parse(localStorage.getItem('traffic_surveys') || '[]');
+                    const newSurvey = {
+                        id: this.currentSurveyId,
                         surveyor: this.username,
-                        userId: this.userId,
                         roadName: road,
                         direction: direction,
                         weather: weather,
                         status: 'active',
                         motorCount: 0,
                         mobilCount: 0,
-                        startTime: now.toISOString(),
-                        timestamp: serverTimestamp()
-                    });
+                        startTime: now.toISOString()
+                    };
+                    saved.unshift(newSurvey);
+                    localStorage.setItem('traffic_surveys', JSON.stringify(saved));
 
                     document.getElementById('input-road').value = '';
                     document.getElementById('input-direction').value = '';
@@ -619,38 +578,36 @@
                     this.showScreen('counting');
                     this.showNotif("Survei dimulai!");
                 } catch (e) {
-                    this.showNotif("Terjadi kesalahan sistem.");
+                    this.showNotif("Terjadi kesalahan penyimpanan lokal.");
                 }
             },
 
-            increment: async function(type) {
-                if(!this.currentSurveyId || !this.userId) return;
+            increment: function(type) {
+                if(!this.currentSurveyId) return;
                 this.counts[type]++;
                 document.getElementById(`count-${type}`).innerText = this.counts[type];
-
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', this.currentSurveyId);
-                    const updateData = {};
-                    if(type === 'motor') updateData.motorCount = this.counts.motor;
-                    if(type === 'mobil') updateData.mobilCount = this.counts.mobil;
-                    await updateDoc(docRef, updateData);
-                } catch (e) {}
+                this.updateLocalStorageCounts();
             },
 
-            decrement: async function(type) {
-                if(!this.currentSurveyId || !this.userId) return;
+            decrement: function(type) {
+                if(!this.currentSurveyId) return;
                 if(this.counts[type] > 0) {
                     this.counts[type]--;
                     document.getElementById(`count-${type}`).innerText = this.counts[type];
-
-                    try {
-                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', this.currentSurveyId);
-                        const updateData = {};
-                        if(type === 'motor') updateData.motorCount = this.counts.motor;
-                        if(type === 'mobil') updateData.mobilCount = this.counts.mobil;
-                        await updateDoc(docRef, updateData);
-                    } catch (e) {}
+                    this.updateLocalStorageCounts();
                 }
+            },
+
+            updateLocalStorageCounts: function() {
+                try {
+                    let saved = JSON.parse(localStorage.getItem('traffic_surveys') || '[]');
+                    const index = saved.findIndex(item => item.id === this.currentSurveyId);
+                    if(index !== -1) {
+                        saved[index].motorCount = this.counts.motor;
+                        saved[index].mobilCount = this.counts.mobil;
+                        localStorage.setItem('traffic_surveys', JSON.stringify(saved));
+                    }
+                } catch (e) {}
             },
 
             confirmStopSurvey: function() {
@@ -667,15 +624,22 @@
                 setTimeout(() => modal.classList.add('opacity-0', 'pointer-events-none'), 150);
             },
 
-            stopSurvey: async function() {
+            stopSurvey: function() {
                 this.closeModal();
                 if(this.timerInterval) clearInterval(this.timerInterval);
-                if(!this.currentSurveyId || !this.userId) return;
+                if(!this.currentSurveyId) return;
 
                 const endTimeStr = new Date().toISOString();
                 try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', this.currentSurveyId);
-                    await updateDoc(docRef, { status: 'completed', endTime: endTimeStr });
+                    let saved = JSON.parse(localStorage.getItem('traffic_surveys') || '[]');
+                    const index = saved.findIndex(item => item.id === this.currentSurveyId);
+                    if(index !== -1) {
+                        saved[index].status = 'completed';
+                        saved[index].endTime = endTimeStr;
+                        saved[index].motorCount = this.counts.motor;
+                        saved[index].mobilCount = this.counts.mobil;
+                        localStorage.setItem('traffic_surveys', JSON.stringify(saved));
+                    }
 
                     const s = new Date(this.currentStartTime || endTimeStr);
                     const e = new Date(endTimeStr);
@@ -712,28 +676,22 @@
                 this.renderFilteredRecaps();
             },
 
-            loadRecaps: async function() {
-                if(!this.userId) return;
-                const listContainer = document.getElementById('recap-list');
-                listContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-40 text-gray-400"><i class="fas fa-circle-notch fa-spin text-2xl mb-2 text-matcha-400"></i><p class="text-sm">Memuat data...</p></div>`;
-
+            loadRecaps: function() {
                 try {
-                    const surveyRef = collection(db, 'artifacts', appId, 'public', 'data', 'surveys');
-                    const snapshot = await getDocs(surveyRef);
+                    const saved = JSON.parse(localStorage.getItem('traffic_surveys') || '[]');
                     let records = [];
                     this.allSurveyors.clear();
 
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        records.push({ id: doc.id, ...data });
-                        if(data.surveyor) this.allSurveyors.add(data.surveyor);
+                    saved.forEach(item => {
+                        records.push(item);
+                        if(item.surveyor) this.allSurveyors.add(item.surveyor);
                     });
 
                     records.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
                     this.rawRecords = records;
                     this.renderFilteredRecaps();
                 } catch (e) {
-                    listContainer.innerHTML = `<p class="text-center text-pink-500 text-sm mt-10">Gagal memuat data.</p>`;
+                    document.getElementById('recap-list').innerHTML = `<p class="text-center text-pink-500 text-sm mt-10">Gagal memuat data lokal.</p>`;
                 }
             },
 
@@ -830,12 +788,15 @@
                 content.classList.add('scale-95');
                 setTimeout(() => modal.classList.add('opacity-0', 'pointer-events-none'), 150);
             },
-            executeDelete: async function() {
+            executeDelete: function() {
                 if(!this.deleteTargetId) return;
                 const targetId = this.deleteTargetId; 
                 this.closeDeleteModal();
                 try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'surveys', targetId));
+                    let saved = JSON.parse(localStorage.getItem('traffic_surveys') || '[]');
+                    saved = saved.filter(item => item.id !== targetId);
+                    localStorage.setItem('traffic_surveys', JSON.stringify(saved));
+                    
                     this.showNotif("Data berhasil dihapus!");
                     this.loadRecaps();
                 } catch(e) {
@@ -863,7 +824,7 @@
                 content.classList.add('scale-95');
                 setTimeout(() => modal.classList.add('opacity-0', 'pointer-events-none'), 150);
             },
-            executeEdit: async function() {
+            executeEdit: function() {
                 if(!this.editTargetId) return;
                 const targetId = this.editTargetId;
                 const road = document.getElementById('edit-road').value.trim();
@@ -875,8 +836,15 @@
 
                 this.closeEditModal();
                 try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', targetId);
-                    await updateDoc(docRef, { roadName: road, direction: direction, motorCount: motor, mobilCount: mobil });
+                    let saved = JSON.parse(localStorage.getItem('traffic_surveys') || '[]');
+                    const index = saved.findIndex(item => item.id === targetId);
+                    if(index !== -1) {
+                        saved[index].roadName = road;
+                        saved[index].direction = direction;
+                        saved[index].motorCount = motor;
+                        saved[index].mobilCount = mobil;
+                        localStorage.setItem('traffic_surveys', JSON.stringify(saved));
+                    }
                     this.showNotif("Perubahan disimpan!");
                     this.loadRecaps();
                 } catch(e) {
@@ -888,4 +856,4 @@
         window.addEventListener('DOMContentLoaded', () => app.init());
     </script>
 </body>
-</html>g
+</html>
