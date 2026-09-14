@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Counter</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        matcha: {
+                            50: '#f4f7f4',
+                            100: '#e3ebe3',
+                            300: '#a3c1a3',
+                            500: '#769f76',
+                            600: '#5c7f5c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fdf2f8; /* Soft pink background */
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #fdf2f8; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #a3c1a3; /* Matcha 300 */
+            border-radius: 4px;
+        }
+        /* Button press effect */
+        .btn-press:active {
+            transform: scale(0.97);
+        }
+        /* Hide screens by default */
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col items-center justify-between">
+
+    <div id="notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-matcha-600 text-white px-6 py-3 rounded-full shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none flex items-center gap-2 text-sm sm:text-base">
+        <i class="fas fa-info-circle"></i>
+        <span id="notif-text">Pesan di sini</span>
+    </div>
+
+    <header class="bg-white shadow-sm py-4 px-6 sm:px-8 w-full flex justify-between items-center sticky top-0 z-40 border-b border-pink-100">
+        <div class="flex items-center gap-2 text-matcha-600">
+            <i class="fas fa-road text-xl sm:text-2xl text-matcha-500"></i>
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-gray-700">Traffic<span class="text-pink-500">Counter</span></h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <div id="user-profile-badge" class="hidden items-center gap-2 bg-pink-50 px-3 py-1.5 rounded-full border border-pink-200">
+                <div class="w-7 h-7 rounded-full bg-pink-200 flex items-center justify-center text-pink-600 font-bold text-sm">
+                    <i class="fas fa-user text-xs"></i>
+                </div>
+                <span id="display-username" class="text-sm font-medium text-pink-700"></span>
+            </div>
+            <button id="btn-logout" onclick="app.logout()" class="hidden text-pink-500 hover:text-pink-700 transition-colors p-2 rounded-full bg-pink-50 border border-pink-100" title="Keluar">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-lg md:max-w-xl lg:max-w-2xl mx-auto p-4 sm:p-6 md:p-8 flex flex-col relative justify-center">
+        
+        <div id="screen-login" class="screen active flex-col items-center justify-center flex-1 w-full h-full my-auto">
+            <div class="bg-white p-6 sm:p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full text-center border border-pink-100">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Selamat Datang!</h2>
+                <p class="text-xs sm:text-sm text-gray-500 mb-6 sm:mb-8">Silakan masukkan nama Surveyor untuk menyimpan rekapan data Anda.</p>
+                
+                <div class="text-left mb-6">
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2 ml-1">Nama Lengkap</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-pink-300"></i>
+                        </div>
+                        <input type="text" id="input-username" value="Widya Ratna Sari" class="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-matcha-400 focus:border-matcha-400 outline-none transition-all text-sm sm:text-base text-gray-700" placeholder="Masukkan nama Anda...">
+                    </div>
+                </div>
+                
+                <button onclick="app.login()" class="w-full bg-matcha-500 hover:bg-matcha-600 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-matcha-100 transition-all btn-press flex items-center justify-center gap-2 text-sm sm:text-base">
+                    Masuk
+                </button>
+            </div>
+        </div>
+
+        <div id="screen-setup" class="screen flex-col w-full h-full py-2 sm:py-4 my-auto">
+            <div class="flex flex-col mb-4 sm:mb-6">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-1">Survei Baru</h2>
+                <p class="text-xs sm:text-sm text-gray-500">Lengkapi detail lokasi sebelum mulai menghitung.</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 ml-1">Nama Jalan <span class="text-pink-500">*</span></label>
+                    <input type="text" id="input-road" class="block w-full px-4 py-3 bg-white border border-pink-100 rounded-xl focus:ring-2 focus:ring-matcha-400 outline-none transition-all text-sm sm:text-base text-gray-700" placeholder="Contoh: Jl. Sudirman">
+                </div>
+
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 ml-1">Arah (Opsional)</label>
+                    <input type="text" id="input-direction" class="block w-full px-4 py-3 bg-white border border-pink-100 rounded-xl focus:ring-2 focus:ring-matcha-400 outline-none transition-all text-sm sm:text-base text-gray-700" placeholder="Contoh: Utara ke Selatan">
+                </div>
+
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 ml-1">Cuaca</label>
+                    <select id="input-weather" class="block w-full px-4 py-3 bg-white border border-pink-100 rounded-xl focus:ring-2 focus:ring-matcha-400 outline-none transition-all text-sm sm:text-base text-gray-700">
+                        <option value="Cerah">Cerah</option>
+                        <option value="Berawan">Berawan</option>
+                        <option value="Hujan Ringan">Hujan Ringan</option>
+                        <option value="Hujan Lebat">Hujan Lebat</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button onclick="app.showScreen('dashboard'); app.loadRecaps();" class="w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 rounded-xl transition-all btn-press flex items-center justify-center text-sm sm:text-base">
+                    Kembali
+                </button>
+                <button onclick="app.startSurvey()" class="w-2/3 bg-matcha-500 hover:bg-matcha-600 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-matcha-100 transition-all btn-press flex items-center justify-center text-sm sm:text-base">
+                    Mulai Menghitung
+                </button>
+            </div>
+            
+            <div id="resume-notice" class="hidden mt-4 bg-orange-50 border border-orange-200 p-4 rounded-2xl flex items-start gap-3">
+                <i class="fas fa-exclamation-triangle text-orange-500 mt-0.5"></i>
+                <div>
+                    <p class="text-xs sm:text-sm font-medium text-orange-800">Ada survei yang belum selesai!</p>
+                    <p class="text-[11px] sm:text-xs text-orange-600 mb-2">Sistem menemukan data yang belum ditutup.</p>
+                    <button onclick="app.resumeSurvey()" class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-lg font-medium transition-colors">Lanjutkan Survei</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-counting" class="screen flex-col w-full h-full py-2">
+            <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-pink-100 mb-4 flex justify-between items-center">
+                <div>
+                    <h3 id="label-active-road" class="font-bold text-gray-800 text-xs sm:text-sm">Jl. Sudirman</h3>
+                    <p id="label-active-direction" class="text-[11px] sm:text-xs text-gray-500">Arah: Utara ke Selatan</p>
+                </div>
+                <div class="text-right">
+                    <div class="flex items-center justify-end gap-1 text-[11px] sm:text-xs font-medium text-pink-600 bg-pink-50 px-2 py-1 rounded-md border border-pink-100">
+                        <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
+                        Merekam
+                    </div>
+                    <p id="label-active-time" class="text-[10px] text-gray-400 mt-1">Mulai 10:00 (0m)</p>
+                </div>
+            </div>
+
+            <!-- Big Counters Container -->
+            <div class="flex-1 flex flex-col sm:flex-row gap-4 mb-4">
+                <!-- Sepeda Motor Box -->
+                <div class="flex-1 bg-white border-2 border-matcha-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6 min-h-[160px] sm:min-h-[200px]">
+                    <div class="absolute top-0 right-0 bg-matcha-50 text-matcha-600 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-bl-xl border-b border-l border-matcha-100">Ketik (M)</div>
+                    <div class="flex items-center gap-2 sm:gap-3 mb-1">
+                        <i class="fas fa-motorcycle text-2xl sm:text-3xl text-matcha-500"></i>
+                        <h3 class="text-sm sm:text-base font-semibold text-gray-600">Sepeda Motor</h3>
+                    </div>
+                    <span id="count-motor" class="text-4xl sm:text-6xl font-bold text-matcha-600 my-1">0</span>
+                    
+                    <!-- Plus Minus Controls Row -->
+                    <div class="flex items-center gap-2 sm:gap-3 mt-2 w-full max-w-xs justify-center">
+                        <button type="button" onclick="app.decrement('motor')" class="w-12 h-11 sm:w-14 sm:h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-lg rounded-xl btn-press shadow-sm flex items-center justify-center cursor-pointer">
+                            <i class="fas fa-minus pointer-events-none"></i>
+                        </button>
+                        <button type="button" onclick="app.increment('motor')" class="flex-1 h-11 sm:h-12 bg-matcha-500 hover:bg-matcha-600 text-white font-bold text-sm sm:text-base rounded-xl btn-press shadow-md shadow-matcha-100 flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fas fa-plus pointer-events-none"></i> Tambah
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobil Box -->
+                <div class="flex-1 bg-white border-2 border-pink-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6 min-h-[160px] sm:min-h-[200px]">
+                    <div class="absolute top-0 right-0 bg-pink-50 text-pink-600 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-bl-xl border-b border-l border-pink-100">Ketik (C)</div>
+                    <div class="flex items-center gap-2 sm:gap-3 mb-1">
+                        <i class="fas fa-car-side text-2xl sm:text-3xl text-pink-500"></i>
+                        <h3 class="text-sm sm:text-base font-semibold text-gray-600">Mobil</h3>
+                    </div>
+                    <span id="count-mobil" class="text-4xl sm:text-6xl font-bold text-pink-600 my-1">0</span>
+                    
+                    <!-- Plus Minus Controls Row -->
+                    <div class="flex items-center gap-2 sm:gap-3 mt-2 w-full max-w-xs justify-center">
+                        <button type="button" onclick="app.decrement('mobil')" class="w-12 h-11 sm:w-14 sm:h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-lg rounded-xl btn-press shadow-sm flex items-center justify-center cursor-pointer">
+                            <i class="fas fa-minus pointer-events-none"></i>
+                        </button>
+                        <button type="button" onclick="app.increment('mobil')" class="flex-1 h-11 sm:h-12 bg-pink-500 hover:bg-pink-600 text-white font-bold text-sm sm:text-base rounded-xl btn-press shadow-md shadow-pink-200 flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fas fa-plus pointer-events-none"></i> Tambah
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="app.confirmStopSurvey()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 sm:py-4 rounded-xl transition-all btn-press flex items-center justify-center border border-gray-200 shadow-sm text-sm sm:text-base">
+                Selesai
+            </button>
+        </div>
+
+        <div id="screen-summary" class="screen flex-col w-full h-full py-4 my-auto">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full text-center border border-pink-100 flex flex-col items-center flex-1 justify-center">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-matcha-50 border border-matcha-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                    <i class="fas fa-check text-2xl sm:text-3xl text-matcha-500"></i>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Rekapan Survei</h2>
+                <p class="text-xs sm:text-sm text-gray-500 mb-6">Hasil survei Anda berhasil direkam.</p>
+                
+                <div class="w-full bg-pink-50/50 rounded-2xl p-4 mb-6 text-left border border-pink-100">
+                    <div class="flex justify-between items-center mb-2 border-b border-pink-100 pb-2">
+                        <span class="text-xs sm:text-sm text-gray-600">Lama Waktu:</span>
+                        <span id="summary-time" class="font-bold text-gray-800 text-xs sm:text-sm">0 menit</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2 border-b border-pink-100 pb-2">
+                        <span class="text-xs sm:text-sm text-gray-600">Sepeda Motor:</span>
+                        <span id="summary-motor" class="font-bold text-matcha-600 text-base sm:text-lg">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs sm:text-sm text-gray-600">Mobil:</span>
+                        <span id="summary-mobil" class="font-bold text-pink-600 text-base sm:text-lg">0</span>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-3 w-full">
+                    <button onclick="app.showScreen('dashboard'); app.loadRecaps()" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3.5 rounded-xl transition-all btn-press shadow-sm text-sm sm:text-base">
+                        Ke Dashboard Riwayat
+                    </button>
+                    <button onclick="app.showScreen('setup')" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-pink-200 transition-all btn-press text-sm sm:text-base">
+                        <i class="fas fa-plus mr-1"></i> Tambah Survei Lagi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-dashboard" class="screen flex-col w-full h-full py-2 sm:py-4">
+            <div class="flex flex-col mb-4 sm:mb-6">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-1">Dashboard</h2>
+                <p class="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">Riwayat survei dari semua pengguna.</p>
+                <button onclick="app.showScreen('setup')" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-pink-200 transition-all btn-press flex items-center justify-center gap-2 text-sm sm:text-base">
+                    <i class="fas fa-plus-circle"></i> Tambahkan Survei Baru
+                </button>
+            </div>
+
+            <!-- Stats Card (Both Matchas) -->
+            <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div class="bg-matcha-50 p-3 sm:p-4 rounded-2xl border border-matcha-100 flex flex-col justify-center shadow-sm">
+                    <p class="text-[11px] sm:text-xs text-matcha-600 font-medium mb-1">Total Motor</p>
+                    <p id="total-all-motor" class="text-xl sm:text-2xl font-bold text-matcha-600">0</p>
+                </div>
+                <div class="bg-matcha-50 p-3 sm:p-4 rounded-2xl border border-matcha-100 flex flex-col justify-center shadow-sm">
+                    <p class="text-[11px] sm:text-xs text-matcha-600 font-medium mb-1">Total Mobil</p>
+                    <p id="total-all-mobil" class="text-xl sm:text-2xl font-bold text-matcha-600">0</p>
+                </div>
+            </div>
+
+            <!-- User Filter Section -->
+            <div class="mb-4 bg-white p-3 sm:p-4 rounded-2xl border border-pink-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]">
+                <div class="flex items-center justify-between mb-2 sm:mb-3">
+                    <h3 class="text-xs sm:text-sm font-semibold text-gray-700"><i class="fas fa-filter text-pink-400 mr-1"></i> Filter Surveyor</h3>
+                    <button onclick="app.clearFilters()" class="text-[11px] sm:text-xs text-pink-500 hover:text-pink-700 font-medium bg-pink-50 px-3 py-1.5 rounded-md transition-colors border border-pink-100">Reset</button>
+                </div>
+                <div id="filter-container" class="flex flex-wrap gap-2">
+                    <!-- Filters populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Table of Records -->
+            <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-pink-100 flex-1 flex flex-col overflow-hidden max-h-[50vh] sm:max-h-[55vh]">
+                <div class="px-4 sm:px-5 py-3 sm:py-4 border-b border-pink-50 flex justify-between items-center bg-gray-50/50">
+                    <h3 class="font-semibold text-gray-700 text-xs sm:text-sm">Semua Riwayat</h3>
+                    <button onclick="app.loadRecaps()" class="text-gray-400 hover:text-matcha-500 transition-colors" title="Muat ulang">
+                        <i class="fas fa-sync-alt text-xs sm:text-sm"></i>
+                    </button>
+                </div>
+                
+                <div class="overflow-y-auto flex-1 custom-scrollbar p-2 sm:p-3" id="recap-list">
+                    <div class="flex flex-col items-center justify-center h-40 text-gray-400">
+                        <i class="fas fa-circle-notch fa-spin text-xl sm:text-2xl mb-2 text-pink-300"></i>
+                        <p class="text-xs sm:text-sm">Memuat data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="modal-confirm" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300" id="modal-content">
+            <div class="w-16 h-16 bg-matcha-50 border border-matcha-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-question text-2xl text-matcha-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Akhiri Survei?</h3>
+            <p class="text-sm text-center text-gray-500 mb-6">Anda yakin ingin mengakhiri sesi penghitungan ini? Data sudah tersimpan otomatis.</p>
+            <div class="flex gap-3">
+                <button onclick="app.closeModal()" class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors text-sm sm:text-base">Batal</button>
+                <button onclick="app.stopSurvey()" class="flex-1 py-3 rounded-xl bg-pink-500 text-white font-medium hover:bg-pink-600 transition-colors shadow-lg shadow-pink-200 text-sm sm:text-base">Ya</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-delete" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300" id="modal-delete-content">
+            <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-pink-200">
+                <i class="fas fa-trash-alt text-2xl text-pink-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Hapus Data?</h3>
+            <p class="text-sm text-center text-gray-500 mb-6">Data ini akan dihapus secara permanen dari sistem.</p>
+            <div class="flex gap-3">
+                <button onclick="app.closeDeleteModal()" class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors text-sm sm:text-base">Batal</button>
+                <button onclick="app.executeDelete()" class="flex-1 py-3 rounded-xl bg-pink-500 text-white font-medium hover:bg-pink-600 transition-colors shadow-lg shadow-pink-200 text-sm sm:text-base">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-edit" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto" id="modal-edit-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Edit Rekapan</h3>
+                <button onclick="app.closeEditModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-4 mb-6 text-left">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Nama Jalan</label>
+                    <input type="text" id="edit-road" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-matcha-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Arah Kendaraan</label>
+                    <input type="text" id="edit-direction" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-matcha-400 outline-none">
+                </div>
+                <div class="flex gap-3">
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-gray-700 mb-1 text-matcha-600">Total Motor</label>
+                        <input type="number" id="edit-motor" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-3 py-2 bg-matcha-50 border border-matcha-100 rounded-lg text-sm font-bold outline-none text-matcha-700">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-gray-700 mb-1 text-pink-600">Total Mobil</label>
+                        <input type="number" id="edit-mobil" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-3 py-2 bg-pink-50 border border-pink-100 rounded-lg text-sm font-bold outline-none text-pink-700">
+                    </div>
+                </div>
+            </div>
+            <button onclick="app.executeEdit()" class="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold hover:bg-pink-600 transition-colors shadow-lg shadow-pink-200 text-sm sm:text-base">
+                Simpan Perubahan
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'traffic-counter-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            projectId: "dummy-project",
+        };
+        const customToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth;
+        try {
+            const firebaseApp = initializeApp(firebaseConfig);
+            db = getFirestore(firebaseApp);
+            auth = getAuth(firebaseApp);
+        } catch (e) {
+            console.error("Firebase init error", e);
+        }
+
+        window.app = {
+            user: null,
+            userId: null,
+            username: "", 
+            currentSurveyId: null,
+            counts: { motor: 0, mobil: 0 },
+            timerInterval: null,
+            
+            activeUserFilters: new Set(),
+            allSurveyors: new Set(),
+            rawRecords: [],
+            
+            init: async function() {
+                if(!auth) return;
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        this.user = user;
+                        this.userId = user.uid;
+                    }
+                });
+                try {
+                    if (customToken) await signInWithCustomToken(auth, customToken);
+                    else await signInAnonymously(auth);
+                } catch (error) {
+                    this.showNotif("Gagal terhubung ke server");
+                }
+
+                document.addEventListener('keydown', (e) => {
+                    if(document.getElementById('screen-counting').classList.contains('active')) {
+                        if(e.key.toLowerCase() === 'm') this.increment('motor');
+                        if(e.key.toLowerCase() === 'c') this.increment('mobil');
+                    }
+                });
+            },
+
+            showScreen: function(screenName) {
+                document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+                document.getElementById(`screen-${screenName}`).classList.add('active');
+                
+                if(screenName !== 'counting' && this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            },
+
+            showNotif: function(msg) {
+                const notif = document.getElementById('notification');
+                document.getElementById('notif-text').innerText = msg;
+                notif.classList.remove('opacity-0', 'pointer-events-none');
+                notif.classList.add('opacity-100');
+                setTimeout(() => {
+                    notif.classList.remove('opacity-100');
+                    notif.classList.add('opacity-0', 'pointer-events-none');
+                }, 3000);
+            },
+
+            formatTimeRange: function(startStr, endStr) {
+                if(!startStr) return "-";
+                const s = new Date(startStr);
+                let timeStr = `${s.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}, ${s.getHours().toString().padStart(2, '0')}:${s.getMinutes().toString().padStart(2, '0')}`;
+                
+                if (endStr) {
+                    const e = new Date(endStr);
+                    timeStr += ` s/d ${e.getHours().toString().padStart(2, '0')}:${e.getMinutes().toString().padStart(2, '0')}`;
+                    
+                    const diffMs = e - s;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const hrs = Math.floor(diffMins / 60);
+                    const mins = diffMins % 60;
+                    
+                    let durationStr = [];
+                    if (hrs > 0) durationStr.push(`${hrs} jam`);
+                    if (mins > 0 || hrs === 0) durationStr.push(`${mins} menit`);
+                    timeStr += ` (${durationStr.join(' ')})`;
+                }
+                return timeStr;
+            },
+
+            startLiveTimer: function(startTimeStr) {
+                if(this.timerInterval) clearInterval(this.timerInterval);
+                const startTime = new Date(startTimeStr);
+                
+                const updateTimerDisplay = () => {
+                    const now = new Date();
+                    const diffMs = now - startTime;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const hrs = Math.floor(diffMins / 60);
+                    const mins = diffMins % 60;
+                    
+                    let durText = '';
+                    if(hrs > 0) durText += `${hrs}j `;
+                    durText += `${mins}m`;
+
+                    const startHour = startTime.getHours().toString().padStart(2, '0');
+                    const startMin = startTime.getMinutes().toString().padStart(2, '0');
+                    document.getElementById('label-active-time').innerText = `Mulai ${startHour}:${startMin} (${durText})`;
+                };
+
+                updateTimerDisplay();
+                this.timerInterval = setInterval(updateTimerDisplay, 10000);
+            },
+
+            login: function() {
+                const nameInput = document.getElementById('input-username').value.trim();
+                if(nameInput) this.username = nameInput;
+                else this.username = "Widya Ratna Sari";
+                
+                document.getElementById('display-username').innerText = this.username;
+                document.getElementById('user-profile-badge').classList.remove('hidden');
+                document.getElementById('user-profile-badge').classList.add('flex');
+                document.getElementById('btn-logout').classList.remove('hidden');
+                document.getElementById('btn-logout').classList.add('block');
+                
+                this.showScreen('dashboard');
+                this.loadRecaps();
+                this.checkActiveSurvey();
+            },
+
+            logout: function() {
+                this.username = "";
+                document.getElementById('user-profile-badge').classList.add('hidden');
+                document.getElementById('user-profile-badge').classList.remove('flex');
+                document.getElementById('btn-logout').classList.add('hidden');
+                document.getElementById('btn-logout').classList.remove('block');
+                document.getElementById('input-username').value = "Widya Ratna Sari";
+                this.showScreen('login');
+            },
+
+            checkActiveSurvey: async function() {
+                if(!this.userId || !this.username) return;
+                try {
+                    const surveyRef = collection(db, 'artifacts', appId, 'public', 'data', 'surveys');
+                    const snapshot = await getDocs(surveyRef);
+                    let activeDoc = null;
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if(data.status === 'active' && data.surveyor === this.username) {
+                            activeDoc = { id: doc.id, ...data };
+                        }
+                    });
+
+                    if(activeDoc) {
+                        document.getElementById('resume-notice').classList.remove('hidden');
+                        this.activeDocData = activeDoc;
+                    } else {
+                        document.getElementById('resume-notice').classList.add('hidden');
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+
+            resumeSurvey: function() {
+                if(!this.activeDocData) return;
+                this.currentSurveyId = this.activeDocData.id;
+                this.counts.motor = this.activeDocData.motorCount || 0;
+                this.counts.mobil = this.activeDocData.mobilCount || 0;
+                
+                document.getElementById('count-motor').innerText = this.counts.motor;
+                document.getElementById('count-mobil').innerText = this.counts.mobil;
+                document.getElementById('label-active-road').innerText = this.activeDocData.roadName;
+                document.getElementById('label-active-direction').innerText = `Arah: ${this.activeDocData.direction}`;
+                
+                this.currentStartTime = this.activeDocData.startTime;
+                this.startLiveTimer(this.currentStartTime);
+
+                document.getElementById('resume-notice').classList.add('hidden');
+                this.showScreen('counting');
+                this.showNotif("Melanjutkan survei sebelumnya");
+            },
+
+            startSurvey: async function() {
+                const road = document.getElementById('input-road').value.trim();
+                const direction = document.getElementById('input-direction').value.trim() || "-";
+                const weather = document.getElementById('input-weather').value;
+
+                if(!road) {
+                    this.showNotif("Harap isi nama jalan!");
+                    return;
+                }
+                if(!this.userId) {
+                    this.showNotif("Sedang menghubungkan ke server...");
+                    return;
+                }
+
+                this.counts = { motor: 0, mobil: 0 };
+                document.getElementById('count-motor').innerText = "0";
+                document.getElementById('count-mobil').innerText = "0";
+                document.getElementById('label-active-road').innerText = road;
+                document.getElementById('label-active-direction').innerText = `Arah: ${direction}`;
+                
+                const now = new Date();
+                this.currentStartTime = now.toISOString();
+                this.startLiveTimer(this.currentStartTime);
+
+                try {
+                    this.currentSurveyId = `survey_${Date.now()}_${this.userId}`;
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', this.currentSurveyId);
+                    
+                    await setDoc(docRef, {
+                        surveyor: this.username,
+                        userId: this.userId,
+                        roadName: road,
+                        direction: direction,
+                        weather: weather,
+                        status: 'active',
+                        motorCount: 0,
+                        mobilCount: 0,
+                        startTime: now.toISOString(),
+                        timestamp: serverTimestamp()
+                    });
+
+                    document.getElementById('input-road').value = '';
+                    document.getElementById('input-direction').value = '';
+                    document.getElementById('resume-notice').classList.add('hidden');
+
+                    this.showScreen('counting');
+                    this.showNotif("Survei dimulai!");
+                } catch (e) {
+                    this.showNotif("Terjadi kesalahan sistem.");
+                }
+            },
+
+            increment: async function(type) {
+                if(!this.currentSurveyId || !this.userId) return;
+                this.counts[type]++;
+                document.getElementById(`count-${type}`).innerText = this.counts[type];
+
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', this.currentSurveyId);
+                    const updateData = {};
+                    if(type === 'motor') updateData.motorCount = this.counts.motor;
+                    if(type === 'mobil') updateData.mobilCount = this.counts.mobil;
+                    await updateDoc(docRef, updateData);
+                } catch (e) {}
+            },
+
+            decrement: async function(type) {
+                if(!this.currentSurveyId || !this.userId) return;
+                if(this.counts[type] > 0) {
+                    this.counts[type]--;
+                    document.getElementById(`count-${type}`).innerText = this.counts[type];
+
+                    try {
+                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', this.currentSurveyId);
+                        const updateData = {};
+                        if(type === 'motor') updateData.motorCount = this.counts.motor;
+                        if(type === 'mobil') updateData.mobilCount = this.counts.mobil;
+                        await updateDoc(docRef, updateData);
+                    } catch (e) {}
+                }
+            },
+
+            confirmStopSurvey: function() {
+                const modal = document.getElementById('modal-confirm');
+                const content = document.getElementById('modal-content');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                setTimeout(() => content.classList.remove('scale-95'), 10);
+            },
+
+            closeModal: function() {
+                const modal = document.getElementById('modal-confirm');
+                const content = document.getElementById('modal-content');
+                content.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('opacity-0', 'pointer-events-none'), 150);
+            },
+
+            stopSurvey: async function() {
+                this.closeModal();
+                if(this.timerInterval) clearInterval(this.timerInterval);
+                if(!this.currentSurveyId || !this.userId) return;
+
+                const endTimeStr = new Date().toISOString();
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', this.currentSurveyId);
+                    await updateDoc(docRef, { status: 'completed', endTime: endTimeStr });
+
+                    const s = new Date(this.currentStartTime || endTimeStr);
+                    const e = new Date(endTimeStr);
+                    const diffMins = Math.floor((e - s) / 60000);
+                    const hrs = Math.floor(diffMins / 60);
+                    const mins = diffMins % 60;
+                    let duration = [];
+                    if (hrs > 0) duration.push(`${hrs} jam`);
+                    if (mins > 0 || hrs === 0) duration.push(`${mins} menit`);
+
+                    document.getElementById('summary-time').innerText = duration.join(' ');
+                    document.getElementById('summary-motor').innerText = this.counts.motor;
+                    document.getElementById('summary-mobil').innerText = this.counts.mobil;
+
+                    this.currentSurveyId = null;
+                    this.activeDocData = null;
+                    this.currentStartTime = null;
+                    
+                    this.showNotif("Survei selesai!");
+                    this.showScreen('summary');
+                } catch (e) {
+                    this.showNotif("Gagal menyimpan data akhir.");
+                }
+            },
+
+            toggleUserFilter: function(surveyor) {
+                if(this.activeUserFilters.has(surveyor)) this.activeUserFilters.delete(surveyor);
+                else this.activeUserFilters.add(surveyor);
+                this.renderFilteredRecaps();
+            },
+
+            clearFilters: function() {
+                this.activeUserFilters.clear();
+                this.renderFilteredRecaps();
+            },
+
+            loadRecaps: async function() {
+                if(!this.userId) return;
+                const listContainer = document.getElementById('recap-list');
+                listContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-40 text-gray-400"><i class="fas fa-circle-notch fa-spin text-2xl mb-2 text-matcha-400"></i><p class="text-sm">Memuat data...</p></div>`;
+
+                try {
+                    const surveyRef = collection(db, 'artifacts', appId, 'public', 'data', 'surveys');
+                    const snapshot = await getDocs(surveyRef);
+                    let records = [];
+                    this.allSurveyors.clear();
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        records.push({ id: doc.id, ...data });
+                        if(data.surveyor) this.allSurveyors.add(data.surveyor);
+                    });
+
+                    records.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+                    this.rawRecords = records;
+                    this.renderFilteredRecaps();
+                } catch (e) {
+                    listContainer.innerHTML = `<p class="text-center text-pink-500 text-sm mt-10">Gagal memuat data.</p>`;
+                }
+            },
+
+            renderFilteredRecaps: function() {
+                const listContainer = document.getElementById('recap-list');
+                let filterHtml = '';
+                
+                if(this.allSurveyors.size === 0) {
+                    filterHtml = '<span class="text-xs text-gray-400">Belum ada data user</span>';
+                } else {
+                    this.allSurveyors.forEach(surveyor => {
+                        const isActive = this.activeUserFilters.size === 0 || this.activeUserFilters.has(surveyor);
+                        const bgClass = isActive 
+                            ? 'bg-matcha-500 text-white border-matcha-500 shadow-sm' 
+                            : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50';
+                        
+                        filterHtml += `<button onclick="app.toggleUserFilter('${surveyor}')" class="px-3 py-1.5 rounded-full text-xs font-medium border ${bgClass} transition-all duration-200 flex items-center gap-1"><i class="fas ${isActive ? 'fa-check' : 'fa-user'} text-[10px]"></i> ${surveyor}</button>`;
+                    });
+                }
+                document.getElementById('filter-container').innerHTML = filterHtml;
+
+                const filtered = this.rawRecords.filter(r => this.activeUserFilters.size === 0 || this.activeUserFilters.has(r.surveyor));
+
+                let html = '';
+                let totalMotor = 0;
+                let totalMobil = 0;
+
+                filtered.forEach(data => {
+                    if(data.status === 'completed') {
+                        totalMotor += (data.motorCount || 0);
+                        totalMobil += (data.mobilCount || 0);
+                    }
+
+                    const timeDisplay = (data.status === 'completed' && data.endTime) 
+                        ? this.formatTimeRange(data.startTime, data.endTime) 
+                        : this.formatTimeRange(data.startTime, null);
+                    
+                    const actionButtons = data.status === 'completed' ? `
+                        <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                            <button onclick="app.openEditModal('${data.id}')" class="text-[11px] font-medium text-gray-500 hover:text-matcha-600 bg-gray-50 px-2.5 py-1 rounded transition-colors"><i class="fas fa-edit"></i> Edit</button>
+                            <button onclick="app.confirmDelete('${data.id}')" class="text-[11px] font-medium text-gray-500 hover:text-pink-500 bg-gray-50 px-2.5 py-1 rounded transition-colors"><i class="fas fa-trash"></i> Hapus</button>
+                        </div>` : '';
+
+                    html += `
+                    <div class="bg-white border border-gray-100 p-4 rounded-2xl mb-3 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">${data.roadName}</h4>
+                                <p class="text-xs text-gray-500"><i class="fas fa-compass mr-1"></i> ${data.direction}</p>
+                                <p class="text-[10px] text-gray-400 mt-1"><i class="far fa-clock mr-1"></i> ${timeDisplay}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-bold text-pink-500"><i class="fas fa-user mr-1"></i> ${data.surveyor}</p>
+                                <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-cloud-sun mr-1"></i> ${data.weather || '-'}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="flex-1 bg-matcha-50/50 rounded-xl p-2 flex items-center justify-between border border-matcha-100">
+                                <div class="flex items-center gap-2 text-matcha-600">
+                                    <i class="fas fa-motorcycle"></i><span class="text-xs font-medium">Motor</span>
+                                </div>
+                                <span class="font-bold text-matcha-700">${data.motorCount || 0}</span>
+                            </div>
+                            <div class="flex-1 bg-pink-50/50 rounded-xl p-2 flex items-center justify-between border border-pink-100">
+                                <div class="flex items-center gap-2 text-pink-600">
+                                    <i class="fas fa-car-side"></i><span class="text-xs font-medium">Mobil</span>
+                                </div>
+                                <span class="font-bold text-pink-700">${data.mobilCount || 0}</span>
+                            </div>
+                        </div>
+                        ${actionButtons}
+                    </div>`;
+                });
+
+                if(filtered.length === 0) {
+                    html = `<div class="flex flex-col items-center justify-center h-40 text-gray-400 text-center px-4"><div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3"><i class="fas fa-inbox text-xl text-gray-300"></i></div><p class="text-sm">Belum ada data survei.</p></div>`;
+                }
+
+                listContainer.innerHTML = html;
+                document.getElementById('total-all-motor').innerText = totalMotor.toLocaleString('id-ID');
+                document.getElementById('total-all-mobil').innerText = totalMobil.toLocaleString('id-ID');
+            },
+
+            confirmDelete: function(id) {
+                this.deleteTargetId = id;
+                const modal = document.getElementById('modal-delete');
+                const content = document.getElementById('modal-delete-content');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                setTimeout(() => content.classList.remove('scale-95'), 10);
+            },
+            closeDeleteModal: function() {
+                const modal = document.getElementById('modal-delete');
+                const content = document.getElementById('modal-delete-content');
+                content.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('opacity-0', 'pointer-events-none'), 150);
+            },
+            executeDelete: async function() {
+                if(!this.deleteTargetId) return;
+                const targetId = this.deleteTargetId; 
+                this.closeDeleteModal();
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'surveys', targetId));
+                    this.showNotif("Data berhasil dihapus!");
+                    this.loadRecaps();
+                } catch(e) {
+                    this.showNotif("Gagal menghapus data.");
+                }
+            },
+
+            openEditModal: function(id) {
+                const survey = this.rawRecords.find(r => r.id === id);
+                if(!survey) return;
+                this.editTargetId = id;
+                document.getElementById('edit-road').value = survey.roadName || '';
+                document.getElementById('edit-direction').value = survey.direction || '';
+                document.getElementById('edit-motor').value = Math.max(0, survey.motorCount || 0);
+                document.getElementById('edit-mobil').value = Math.max(0, survey.mobilCount || 0);
+
+                const modal = document.getElementById('modal-edit');
+                const content = document.getElementById('modal-edit-content');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                setTimeout(() => content.classList.remove('scale-95'), 10);
+            },
+            closeEditModal: function() {
+                const modal = document.getElementById('modal-edit');
+                const content = document.getElementById('modal-edit-content');
+                content.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('opacity-0', 'pointer-events-none'), 150);
+            },
+            executeEdit: async function() {
+                if(!this.editTargetId) return;
+                const targetId = this.editTargetId;
+                const road = document.getElementById('edit-road').value.trim();
+                const direction = document.getElementById('edit-direction').value.trim() || "-";
+                const motor = Math.max(0, parseInt(document.getElementById('edit-motor').value) || 0);
+                const mobil = Math.max(0, parseInt(document.getElementById('edit-mobil').value) || 0);
+
+                if(!road) return this.showNotif("Nama jalan tidak boleh kosong");
+
+                this.closeEditModal();
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'surveys', targetId);
+                    await updateDoc(docRef, { roadName: road, direction: direction, motorCount: motor, mobilCount: mobil });
+                    this.showNotif("Perubahan disimpan!");
+                    this.loadRecaps();
+                } catch(e) {
+                    this.showNotif("Gagal menyimpan perubahan.");
+                }
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
