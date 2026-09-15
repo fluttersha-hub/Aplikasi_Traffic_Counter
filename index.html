@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Traffic Counter</title>
     
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛣️</text></svg>">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -29,6 +32,7 @@
             }
         }
     </script>
+    
     <style>
         body {
             background-color: #fdf2f8; /* Soft pink background */
@@ -68,20 +72,20 @@
         <span id="notif-text">Pesan di sini</span>
     </div>
 
-    <header class="bg-white shadow-sm py-4 px-6 sm:px-8 w-full flex justify-between items-center sticky top-0 z-40 border-b border-pink-100">
-        <div class="flex items-center gap-2 text-matcha-600">
+    <header class="bg-white shadow-sm py-3 sm:py-4 px-4 sm:px-6 w-full flex justify-between items-center sticky top-0 z-40 border-b border-pink-100">
+        <div class="flex items-center gap-1.5 sm:gap-2 text-matcha-600">
             <i class="fas fa-road text-xl sm:text-2xl text-matcha-500"></i>
-            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-gray-700">Traffic<span class="text-pink-500">Counter</span></h1>
+            <h1 class="text-base sm:text-xl font-bold tracking-tight text-gray-700">Traffic<span class="text-pink-500">Counter</span></h1>
         </div>
-        <div class="flex items-center gap-3">
-            <div id="user-profile-badge" class="hidden items-center gap-2 bg-pink-50 px-3 py-1.5 rounded-full border border-pink-200">
-                <div class="w-7 h-7 rounded-full bg-pink-200 flex items-center justify-center text-pink-600 font-bold text-sm">
-                    <i class="fas fa-user text-xs"></i>
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div id="user-profile-badge" class="hidden items-center gap-1.5 sm:gap-2 bg-pink-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-pink-200 max-w-[130px] sm:max-w-none">
+                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-pink-200 flex items-center justify-center text-pink-600 font-bold shrink-0">
+                    <i class="fas fa-user text-[10px] sm:text-xs"></i>
                 </div>
-                <span id="display-username" class="text-sm font-medium text-pink-700"></span>
+                <span id="display-username" class="text-[11px] sm:text-sm font-medium text-pink-700 truncate"></span>
             </div>
-            <button id="btn-logout" onclick="app.logout()" class="hidden text-pink-500 hover:text-pink-700 transition-colors p-2 rounded-full bg-pink-50 border border-pink-100" title="Keluar">
-                <i class="fas fa-sign-out-alt"></i>
+            <button id="btn-logout" onclick="app.logout()" class="hidden text-pink-500 hover:text-pink-700 transition-colors p-1.5 sm:p-2 rounded-full bg-pink-50 border border-pink-100" title="Keluar">
+                <i class="fas fa-sign-out-alt text-sm sm:text-base"></i>
             </button>
         </div>
     </header>
@@ -157,7 +161,7 @@
         </div>
 
         <div id="screen-counting" class="screen flex-col w-full h-full py-2">
-            <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-pink-100 mb-4 flex justify-between items-center">
+            <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-pink-100 mb-2 flex justify-between items-center shrink-0">
                 <div>
                     <h3 id="label-active-road" class="font-bold text-gray-800 text-xs sm:text-sm">Jl. Sudirman</h3>
                     <p id="label-active-direction" class="text-[11px] sm:text-xs text-gray-500">Arah: Utara ke Selatan</p>
@@ -171,78 +175,166 @@
                 </div>
             </div>
 
-            <!-- Big Counters Container -->
-            <div class="flex-1 flex flex-col sm:flex-row gap-4 mb-4">
-                <!-- Sepeda Motor Box -->
-                <div class="flex-1 bg-white border-2 border-matcha-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6 min-h-[160px] sm:min-h-[200px]">
-                    <div class="absolute top-0 right-0 bg-matcha-50 text-matcha-600 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-bl-xl border-b border-l border-matcha-100">Ketik (M)</div>
-                    <div class="flex items-center gap-2 sm:gap-3 mb-1">
-                        <i class="fas fa-motorcycle text-2xl sm:text-3xl text-matcha-500"></i>
-                        <h3 class="text-sm sm:text-base font-semibold text-gray-600">Motor</h3>
+            <!-- Area Penghitung (Scrollable) -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar pb-4 pr-1 mb-2">
+                <!-- Kendaraan Ringan -->
+                <h4 class="font-bold text-gray-700 text-xs sm:text-sm mb-2 mt-1 border-b border-pink-100 pb-1 flex items-center gap-2"><i class="fas fa-bicycle text-matcha-500"></i> Kendaraan Ringan</h4>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <!-- Motor (Matcha) -->
+                    <div onclick="app.increment('motor')" class="bg-white border-2 border-matcha-100 rounded-2xl shadow-sm relative overflow-hidden flex flex-col items-center justify-center p-3 cursor-pointer hover:bg-matcha-50 transition-colors btn-press select-none">
+                        <div class="absolute top-0 right-0 bg-matcha-50 text-matcha-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">M</div>
+                        <i class="fas fa-motorcycle text-xl sm:text-2xl text-matcha-500 mb-1"></i>
+                        <h3 class="text-xs sm:text-sm font-semibold text-gray-600">Motor</h3>
+                        <span id="count-motor" class="text-2xl sm:text-3xl font-bold text-matcha-600 my-1">0</span>
+                        <div class="flex gap-1 mt-1 w-full max-w-[120px]">
+                            <button type="button" onclick="event.stopPropagation(); app.decrement('motor')" class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-minus text-xs pointer-events-none"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); app.increment('motor')" class="flex-1 h-8 sm:h-10 bg-matcha-500 hover:bg-matcha-600 text-white font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-plus text-xs pointer-events-none"></i></button>
+                        </div>
                     </div>
-                    <span id="count-motor" class="text-4xl sm:text-6xl font-bold text-matcha-600 my-1">0</span>
-                    
-                    <!-- Plus Minus Controls Row -->
-                    <div class="flex items-center gap-2 sm:gap-3 mt-2 w-full max-w-xs justify-center">
-                        <button type="button" onclick="app.decrement('motor')" class="w-12 h-11 sm:w-14 sm:h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-lg rounded-xl btn-press shadow-sm flex items-center justify-center cursor-pointer">
-                            <i class="fas fa-minus pointer-events-none"></i>
-                        </button>
-                        <button type="button" onclick="app.increment('motor')" class="flex-1 h-11 sm:h-12 bg-matcha-500 hover:bg-matcha-600 text-white font-bold text-sm sm:text-base rounded-xl btn-press shadow-md shadow-matcha-100 flex items-center justify-center gap-2 cursor-pointer">
-                            <i class="fas fa-plus pointer-events-none"></i> Tambah
-                        </button>
+                    <!-- Becak (Matcha) -->
+                    <div onclick="app.increment('becak')" class="bg-white border-2 border-matcha-100 rounded-2xl shadow-sm relative overflow-hidden flex flex-col items-center justify-center p-3 cursor-pointer hover:bg-matcha-50 transition-colors btn-press select-none">
+                        <div class="absolute top-0 right-0 bg-matcha-50 text-matcha-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">B</div>
+                        <i class="fas fa-biking text-xl sm:text-2xl text-matcha-500 mb-1"></i>
+                        <h3 class="text-xs sm:text-sm font-semibold text-gray-600">Becak</h3>
+                        <span id="count-becak" class="text-2xl sm:text-3xl font-bold text-matcha-600 my-1">0</span>
+                        <div class="flex gap-1 mt-1 w-full max-w-[120px]">
+                            <button type="button" onclick="event.stopPropagation(); app.decrement('becak')" class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-minus text-xs pointer-events-none"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); app.increment('becak')" class="flex-1 h-8 sm:h-10 bg-matcha-500 hover:bg-matcha-600 text-white font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-plus text-xs pointer-events-none"></i></button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Mobil Box -->
-                <div class="flex-1 bg-white border-2 border-pink-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6 min-h-[160px] sm:min-h-[200px]">
-                    <div class="absolute top-0 right-0 bg-pink-50 text-pink-600 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-bl-xl border-b border-l border-pink-100">Ketik (C)</div>
-                    <div class="flex items-center gap-2 sm:gap-3 mb-1">
-                        <i class="fas fa-car-side text-2xl sm:text-3xl text-pink-500"></i>
-                        <h3 class="text-sm sm:text-base font-semibold text-gray-600">Mobil</h3>
+                <!-- Kendaraan Sedang -->
+                <h4 class="font-bold text-gray-700 text-xs sm:text-sm mb-2 border-b border-pink-100 pb-1 flex items-center gap-2"><i class="fas fa-car text-pink-500"></i> Kendaraan Sedang</h4>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <!-- Mobil (Pink) -->
+                    <div onclick="app.increment('mobil')" class="bg-white border-2 border-pink-100 rounded-2xl shadow-sm relative overflow-hidden flex flex-col items-center justify-center p-3 cursor-pointer hover:bg-pink-50 transition-colors btn-press select-none">
+                        <div class="absolute top-0 right-0 bg-pink-50 text-pink-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">C</div>
+                        <i class="fas fa-car-side text-xl sm:text-2xl text-pink-500 mb-1"></i>
+                        <h3 class="text-[11px] sm:text-sm font-semibold text-gray-600 text-center leading-tight">Mobil Pribadi</h3>
+                        <span id="count-mobil" class="text-2xl sm:text-3xl font-bold text-pink-600 my-1">0</span>
+                        <div class="flex gap-1 mt-1 w-full max-w-[120px]">
+                            <button type="button" onclick="event.stopPropagation(); app.decrement('mobil')" class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-minus text-xs pointer-events-none"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); app.increment('mobil')" class="flex-1 h-8 sm:h-10 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-plus text-xs pointer-events-none"></i></button>
+                        </div>
                     </div>
-                    <span id="count-mobil" class="text-4xl sm:text-6xl font-bold text-pink-600 my-1">0</span>
-                    
-                    <!-- Plus Minus Controls Row -->
-                    <div class="flex items-center gap-2 sm:gap-3 mt-2 w-full max-w-xs justify-center">
-                        <button type="button" onclick="app.decrement('mobil')" class="w-12 h-11 sm:w-14 sm:h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-lg rounded-xl btn-press shadow-sm flex items-center justify-center cursor-pointer">
-                            <i class="fas fa-minus pointer-events-none"></i>
-                        </button>
-                        <button type="button" onclick="app.increment('mobil')" class="flex-1 h-11 sm:h-12 bg-pink-500 hover:bg-pink-600 text-white font-bold text-sm sm:text-base rounded-xl btn-press shadow-md shadow-pink-200 flex items-center justify-center gap-2 cursor-pointer">
-                            <i class="fas fa-plus pointer-events-none"></i> Tambah
-                        </button>
+                    <!-- Pickup (Pink) -->
+                    <div onclick="app.increment('pickup')" class="bg-white border-2 border-pink-100 rounded-2xl shadow-sm relative overflow-hidden flex flex-col items-center justify-center p-3 cursor-pointer hover:bg-pink-50 transition-colors btn-press select-none">
+                        <div class="absolute top-0 right-0 bg-pink-50 text-pink-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">P</div>
+                        <i class="fas fa-truck-pickup text-xl sm:text-2xl text-pink-500 mb-1"></i>
+                        <h3 class="text-xs sm:text-sm font-semibold text-gray-600">Pick Up</h3>
+                        <span id="count-pickup" class="text-2xl sm:text-3xl font-bold text-pink-600 my-1">0</span>
+                        <div class="flex gap-1 mt-1 w-full max-w-[120px]">
+                            <button type="button" onclick="event.stopPropagation(); app.decrement('pickup')" class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-minus text-xs pointer-events-none"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); app.increment('pickup')" class="flex-1 h-8 sm:h-10 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-plus text-xs pointer-events-none"></i></button>
+                        </div>
+                    </div>
+                    <!-- Van (Pink) -->
+                    <div onclick="app.increment('van')" class="bg-white border-2 border-pink-100 rounded-2xl shadow-sm relative overflow-hidden flex flex-col items-center justify-center p-3 col-span-2 cursor-pointer hover:bg-pink-50 transition-colors btn-press select-none">
+                        <div class="absolute top-0 right-0 bg-pink-50 text-pink-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">V</div>
+                        <i class="fas fa-shuttle-van text-xl sm:text-2xl text-pink-500 mb-1"></i>
+                        <h3 class="text-xs sm:text-sm font-semibold text-gray-600">Van</h3>
+                        <span id="count-van" class="text-2xl sm:text-3xl font-bold text-pink-600 my-1">0</span>
+                        <div class="flex gap-1 mt-1 w-full max-w-[120px]">
+                            <button type="button" onclick="event.stopPropagation(); app.decrement('van')" class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-minus text-xs pointer-events-none"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); app.increment('van')" class="flex-1 h-8 sm:h-10 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-plus text-xs pointer-events-none"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kendaraan Berat -->
+                <h4 class="font-bold text-gray-700 text-xs sm:text-sm mb-2 border-b border-pink-100 pb-1 flex items-center gap-2"><i class="fas fa-truck-moving text-matcha-500"></i> Kendaraan Berat</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Truk (Matcha) -->
+                    <div onclick="app.increment('truk')" class="bg-white border-2 border-matcha-100 rounded-2xl shadow-sm relative overflow-hidden flex flex-col items-center justify-center p-3 cursor-pointer hover:bg-matcha-50 transition-colors btn-press select-none">
+                        <div class="absolute top-0 right-0 bg-matcha-50 text-matcha-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">T</div>
+                        <i class="fas fa-truck text-xl sm:text-2xl text-matcha-500 mb-1"></i>
+                        <h3 class="text-xs sm:text-sm font-semibold text-gray-600">Truk</h3>
+                        <span id="count-truk" class="text-2xl sm:text-3xl font-bold text-matcha-600 my-1">0</span>
+                        <div class="flex gap-1 mt-1 w-full max-w-[120px]">
+                            <button type="button" onclick="event.stopPropagation(); app.decrement('truk')" class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-minus text-xs pointer-events-none"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); app.increment('truk')" class="flex-1 h-8 sm:h-10 bg-matcha-500 hover:bg-matcha-600 text-white font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-plus text-xs pointer-events-none"></i></button>
+                        </div>
+                    </div>
+                    <!-- Tronton (Matcha) -->
+                    <div onclick="app.increment('tronton')" class="bg-white border-2 border-matcha-100 rounded-2xl shadow-sm relative overflow-hidden flex flex-col items-center justify-center p-3 cursor-pointer hover:bg-matcha-50 transition-colors btn-press select-none">
+                        <div class="absolute top-0 right-0 bg-matcha-50 text-matcha-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">R</div>
+                        <i class="fas fa-trailer text-xl sm:text-2xl text-matcha-500 mb-1"></i>
+                        <h3 class="text-xs sm:text-sm font-semibold text-gray-600">Tronton</h3>
+                        <span id="count-tronton" class="text-2xl sm:text-3xl font-bold text-matcha-600 my-1">0</span>
+                        <div class="flex gap-1 mt-1 w-full max-w-[120px]">
+                            <button type="button" onclick="event.stopPropagation(); app.decrement('tronton')" class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-minus text-xs pointer-events-none"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); app.increment('tronton')" class="flex-1 h-8 sm:h-10 bg-matcha-500 hover:bg-matcha-600 text-white font-bold rounded-lg btn-press flex items-center justify-center"><i class="fas fa-plus text-xs pointer-events-none"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <button onclick="app.confirmStopSurvey()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 sm:py-4 rounded-xl transition-all btn-press flex items-center justify-center border border-gray-200 shadow-sm text-sm sm:text-base">
+            <button onclick="app.confirmStopSurvey()" class="w-full shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 sm:py-4 rounded-xl transition-all btn-press flex items-center justify-center border border-gray-200 shadow-sm text-sm sm:text-base">
                 Selesai
             </button>
         </div>
 
         <div id="screen-summary" class="screen flex-col w-full h-full py-4 my-auto">
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full text-center border border-pink-100 flex flex-col items-center flex-1 justify-center">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-matcha-50 border border-matcha-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full text-center border border-pink-100 flex flex-col items-center flex-1 justify-center overflow-y-auto custom-scrollbar">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-matcha-50 border border-matcha-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner shrink-0">
                     <i class="fas fa-check text-2xl sm:text-3xl text-matcha-500"></i>
                 </div>
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Rekapan Survei</h2>
-                <p class="text-xs sm:text-sm text-gray-500 mb-6">Hasil surveimu sudah dicatat!</p>
+                <p class="text-xs sm:text-sm text-gray-500 mb-4">Hasil surveimu sudah dicatat!</p>
                 
-                <div class="w-full bg-pink-50/50 rounded-2xl p-4 mb-6 text-left border border-pink-100">
-                    <div class="flex justify-between items-center mb-2 border-b border-pink-100 pb-2">
-                        <span class="text-xs sm:text-sm text-gray-600">Lama Waktu:</span>
+                <div class="w-full bg-white rounded-2xl p-4 mb-4 text-left border border-gray-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-3 border-b border-gray-100 pb-2">
+                        <span class="text-xs sm:text-sm font-medium text-gray-600">Lama Waktu:</span>
                         <span id="summary-time" class="font-bold text-gray-800 text-xs sm:text-sm">0 menit</span>
                     </div>
-                    <div class="flex justify-between items-center mb-2 border-b border-pink-100 pb-2">
-                        <span class="text-xs sm:text-sm text-gray-600">Motor:</span>
-                        <span id="summary-motor" class="font-bold text-matcha-600 text-base sm:text-lg">0</span>
+                    
+                    <div class="space-y-3">
+                        <!-- Ringan -->
+                        <div>
+                            <div class="flex justify-between items-end mb-1">
+                                <h4 class="font-bold text-matcha-600 text-xs sm:text-sm">Kendaraan Ringan</h4>
+                                <span class="text-[10px] sm:text-xs font-bold bg-matcha-50 text-matcha-700 px-2 py-0.5 rounded">Total: <span id="sum-cat-ringan">0</span></span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-[11px] sm:text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
+                                <div class="flex justify-between"><span>Motor:</span> <span id="sum-motor" class="font-semibold">0</span></div>
+                                <div class="flex justify-between"><span>Becak:</span> <span id="sum-becak" class="font-semibold">0</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Sedang -->
+                        <div>
+                            <div class="flex justify-between items-end mb-1">
+                                <h4 class="font-bold text-pink-600 text-xs sm:text-sm">Kendaraan Sedang</h4>
+                                <span class="text-[10px] sm:text-xs font-bold bg-pink-50 text-pink-700 px-2 py-0.5 rounded">Total: <span id="sum-cat-sedang">0</span></span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-[11px] sm:text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
+                                <div class="flex justify-between"><span>Mobil:</span> <span id="sum-mobil" class="font-semibold">0</span></div>
+                                <div class="flex justify-between"><span>Pick Up:</span> <span id="sum-pickup" class="font-semibold">0</span></div>
+                                <div class="flex justify-between col-span-2"><span>Van:</span> <span id="sum-van" class="font-semibold">0</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Berat -->
+                        <div>
+                            <div class="flex justify-between items-end mb-1">
+                                <h4 class="font-bold text-matcha-600 text-xs sm:text-sm">Kendaraan Berat</h4>
+                                <span class="text-[10px] sm:text-xs font-bold bg-matcha-50 text-matcha-700 px-2 py-0.5 rounded">Total: <span id="sum-cat-berat">0</span></span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-[11px] sm:text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
+                                <div class="flex justify-between"><span>Truk:</span> <span id="sum-truk" class="font-semibold">0</span></div>
+                                <div class="flex justify-between"><span>Tronton:</span> <span id="sum-tronton" class="font-semibold">0</span></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs sm:text-sm text-gray-600">Mobil:</span>
-                        <span id="summary-mobil" class="font-bold text-pink-600 text-base sm:text-lg">0</span>
+
+                    <div class="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
+                        <span class="font-bold text-gray-700 text-sm">Total Kendaraan:</span>
+                        <span id="sum-grand" class="font-bold text-gray-900 text-lg">0</span>
                     </div>
                 </div>
                 
-                <div class="flex flex-col gap-3 w-full">
+                <div class="flex flex-col gap-3 w-full shrink-0">
                     <button onclick="app.showScreen('dashboard'); app.loadRecaps()" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3.5 rounded-xl transition-all btn-press shadow-sm text-sm sm:text-base">
                         Ke Dashboard
                     </button>
@@ -262,19 +354,22 @@
                 </button>
             </div>
 
-            <!-- Stats Card (Both Matchas) -->
-            <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <div class="bg-matcha-50 p-3 sm:p-4 rounded-2xl border border-matcha-100 flex flex-col justify-center shadow-sm">
-                    <p class="text-[11px] sm:text-xs text-matcha-600 font-medium mb-1">Total Motor</p>
-                    <p id="total-all-motor" class="text-xl sm:text-2xl font-bold text-matcha-600">0</p>
+            <!-- Stats Card 3 Categories -->
+            <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div class="bg-matcha-50 p-2 sm:p-3 rounded-2xl border border-matcha-100 flex flex-col justify-center shadow-sm text-center">
+                    <p class="text-[10px] sm:text-[11px] text-matcha-600 font-medium mb-1 leading-tight">Total Kendaraan<br>Ringan</p>
+                    <p id="total-all-ringan" class="text-lg sm:text-xl font-bold text-matcha-600 mt-1">0</p>
                 </div>
-                <div class="bg-matcha-50 p-3 sm:p-4 rounded-2xl border border-matcha-100 flex flex-col justify-center shadow-sm">
-                    <p class="text-[11px] sm:text-xs text-matcha-600 font-medium mb-1">Total Mobil</p>
-                    <p id="total-all-mobil" class="text-xl sm:text-2xl font-bold text-matcha-600">0</p>
+                <div class="bg-pink-50 p-2 sm:p-3 rounded-2xl border border-pink-100 flex flex-col justify-center shadow-sm text-center">
+                    <p class="text-[10px] sm:text-[11px] text-pink-600 font-medium mb-1 leading-tight">Total Kendaraan<br>Sedang</p>
+                    <p id="total-all-sedang" class="text-lg sm:text-xl font-bold text-pink-600 mt-1">0</p>
+                </div>
+                <div class="bg-matcha-50 p-2 sm:p-3 rounded-2xl border border-matcha-100 flex flex-col justify-center shadow-sm text-center">
+                    <p class="text-[10px] sm:text-[11px] text-matcha-600 font-medium mb-1 leading-tight">Total Kendaraan<br>Berat</p>
+                    <p id="total-all-berat" class="text-lg sm:text-xl font-bold text-matcha-600 mt-1">0</p>
                 </div>
             </div>
 
-            <!-- User Filter Section -->
             <div class="mb-4 bg-white p-3 sm:p-4 rounded-2xl border border-pink-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]">
                 <div class="flex items-center justify-between mb-2 sm:mb-3">
                     <h3 class="text-xs sm:text-sm font-semibold text-gray-700"><i class="fas fa-filter text-pink-400 mr-1"></i> Filter Nama </h3>
@@ -285,7 +380,6 @@
                 </div>
             </div>
 
-            <!-- Table of Records -->
             <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-pink-100 flex-1 flex flex-col overflow-hidden max-h-[50vh] sm:max-h-[55vh]">
                 <div class="px-4 sm:px-5 py-3 sm:py-4 border-b border-pink-50 flex justify-between items-center bg-gray-50/50">
                     <h3 class="font-semibold text-gray-700 text-xs sm:text-sm">Riwayat</h3>
@@ -325,7 +419,7 @@
                 <i class="fas fa-trash-alt text-2xl text-pink-500"></i>
             </div>
             <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Hapus Data?</h3>
-            <p class="text-sm text-center text-gray-500 mb-6">Data ini akan dihapus secara permanen dari sistem.</p>
+            <p class="text-sm text-center text-gray-500 mb-6">Datanya bakal dihapus secara permanen di sini.</p>
             <div class="flex gap-3">
                 <button onclick="app.closeDeleteModal()" class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors text-sm sm:text-base">Batal</button>
                 <button onclick="app.executeDelete()" class="flex-1 py-3 rounded-xl bg-pink-500 text-white font-medium hover:bg-pink-600 transition-colors shadow-lg shadow-pink-200 text-sm sm:text-base">Hapus</button>
@@ -334,58 +428,83 @@
     </div>
 
     <div id="modal-edit" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 px-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto" id="modal-edit-content">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto custom-scrollbar" id="modal-edit-content">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">Edit Rekapan</h3>
+                <h3 class="text-lg font-bold text-gray-800">Edit Rekapan</h3>
                 <button onclick="app.closeEditModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
             </div>
-            <div class="space-y-4 mb-6 text-left">
+            <div class="space-y-3 mb-6 text-left">
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Nama Jalan</label>
                     <input type="text" id="edit-road" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-matcha-400 outline-none">
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Arah Kendaraan</label>
-                    <input type="text" id="edit-direction" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-matcha-400 outline-none">
-                </div>
-                <div class="flex gap-3">
-                    <div class="flex-1">
-                        <label class="block text-xs font-medium text-gray-700 mb-1 text-matcha-600">Total Motor</label>
-                        <input type="number" id="edit-motor" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-3 py-2 bg-matcha-50 border border-matcha-100 rounded-lg text-sm font-bold outline-none text-matcha-700">
+                
+                <!-- Kelompok Edit Ringan -->
+                <h4 class="text-xs font-bold text-gray-500 mt-2 border-b pb-1">Kendaraan Ringan</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-medium text-matcha-600 mb-1">Motor</label>
+                        <input type="number" id="edit-motor" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-2 py-1.5 bg-matcha-50 border border-matcha-100 rounded-lg text-sm font-bold outline-none text-matcha-700">
                     </div>
-                    <div class="flex-1">
-                        <label class="block text-xs font-medium text-gray-700 mb-1 text-pink-600">Total Mobil</label>
-                        <input type="number" id="edit-mobil" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-3 py-2 bg-pink-50 border border-pink-100 rounded-lg text-sm font-bold outline-none text-pink-700">
+                    <div>
+                        <label class="block text-[10px] font-medium text-pink-600 mb-1">Becak</label>
+                        <input type="number" id="edit-becak" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-2 py-1.5 bg-pink-50 border border-pink-100 rounded-lg text-sm font-bold outline-none text-pink-700">
+                    </div>
+                </div>
+
+                <!-- Kelompok Edit Sedang -->
+                <h4 class="text-xs font-bold text-gray-500 mt-2 border-b pb-1">Kendaraan Sedang</h4>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-medium text-matcha-600 mb-1">Mobil</label>
+                        <input type="number" id="edit-mobil" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-2 py-1.5 bg-matcha-50 border border-matcha-100 rounded-lg text-sm font-bold outline-none text-matcha-700">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-medium text-pink-600 mb-1">Pick Up</label>
+                        <input type="number" id="edit-pickup" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-2 py-1.5 bg-pink-50 border border-pink-100 rounded-lg text-sm font-bold outline-none text-pink-700">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-medium text-matcha-600 mb-1">Van</label>
+                        <input type="number" id="edit-van" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-2 py-1.5 bg-matcha-50 border border-matcha-100 rounded-lg text-sm font-bold outline-none text-matcha-700">
+                    </div>
+                </div>
+
+                <!-- Kelompok Edit Berat -->
+                <h4 class="text-xs font-bold text-gray-500 mt-2 border-b pb-1">Kendaraan Berat</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-medium text-pink-600 mb-1">Truk</label>
+                        <input type="number" id="edit-truk" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-2 py-1.5 bg-pink-50 border border-pink-100 rounded-lg text-sm font-bold outline-none text-pink-700">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-medium text-matcha-600 mb-1">Tronton</label>
+                        <input type="number" id="edit-tronton" min="0" oninput="if(this.value < 0) this.value = 0;" class="w-full px-2 py-1.5 bg-matcha-50 border border-matcha-100 rounded-lg text-sm font-bold outline-none text-matcha-700">
                     </div>
                 </div>
             </div>
-            <button onclick="app.executeEdit()" class="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold hover:bg-pink-600 transition-colors shadow-lg shadow-pink-200 text-sm sm:text-base">
+            <button onclick="app.executeEdit()" class="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold hover:bg-pink-600 transition-colors shadow-lg shadow-pink-200 text-sm sm:text-base mt-2">
                 Simpan Perubahan
             </button>
         </div>
     </div>
 
     <script type="module">
-
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'traffic-counter-app';
-
         const customToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let db, auth;
         try {
-            const firebaseApp = initializeApp(firebaseConfig);
-            db = getFirestore(firebaseApp);
-            auth = getAuth(firebaseApp);
+            // Setup opsional firebase jika ada
         } catch (e) {
-            console.error("Firebase init error", e);
+            console.error("Firebase init error!", e);
         }
 
-window.app = {
+        window.app = {
             user: null,
             userId: "local_user_device",
             username: "", 
             currentSurveyId: null,
-            counts: { motor: 0, mobil: 0 },
+            counts: { motor: 0, becak: 0, mobil: 0, pickup: 0, van: 0, truk: 0, tronton: 0 },
             timerInterval: null,
             
             activeUserFilters: new Set(),
@@ -393,13 +512,18 @@ window.app = {
             rawRecords: [],
             
             init: function() {
-                // Menggunakan localStorage untuk mengambil data awal jika ada
                 this.loadRecaps();
 
                 document.addEventListener('keydown', (e) => {
                     if(document.getElementById('screen-counting').classList.contains('active')) {
-                        if(e.key.toLowerCase() === 'm') this.increment('motor');
-                        if(e.key.toLowerCase() === 'c') this.increment('mobil');
+                        const key = e.key.toLowerCase();
+                        if(key === 'm') this.increment('motor');
+                        if(key === 'b') this.increment('becak');
+                        if(key === 'c') this.increment('mobil');
+                        if(key === 'p') this.increment('pickup');
+                        if(key === 'v') this.increment('van');
+                        if(key === 't') this.increment('truk');
+                        if(key === 'r') this.increment('tronton');
                     }
                 });
             },
@@ -517,11 +641,22 @@ window.app = {
             resumeSurvey: function() {
                 if(!this.activeDocData) return;
                 this.currentSurveyId = this.activeDocData.id;
-                this.counts.motor = this.activeDocData.motorCount || 0;
-                this.counts.mobil = this.activeDocData.mobilCount || 0;
                 
-                document.getElementById('count-motor').innerText = this.counts.motor;
-                document.getElementById('count-mobil').innerText = this.counts.mobil;
+                // Load all 7 counts safely (fallback to 0)
+                this.counts = {
+                    motor: this.activeDocData.motorCount || 0,
+                    becak: this.activeDocData.becakCount || 0,
+                    mobil: this.activeDocData.mobilCount || 0,
+                    pickup: this.activeDocData.pickupCount || 0,
+                    van: this.activeDocData.vanCount || 0,
+                    truk: this.activeDocData.trukCount || 0,
+                    tronton: this.activeDocData.trontonCount || 0
+                };
+                
+                Object.keys(this.counts).forEach(key => {
+                    document.getElementById(`count-${key}`).innerText = this.counts[key];
+                });
+                
                 document.getElementById('label-active-road').innerText = this.activeDocData.roadName;
                 document.getElementById('label-active-direction').innerText = `Arah: ${this.activeDocData.direction}`;
                 
@@ -530,7 +665,7 @@ window.app = {
 
                 document.getElementById('resume-notice').classList.add('hidden');
                 this.showScreen('counting');
-                this.showNotif("Melanjutkan survei sebelumnya");
+                this.showNotif("Melanjutkan survei sebelumnya...");
             },
 
             startSurvey: function() {
@@ -539,13 +674,16 @@ window.app = {
                 const weather = document.getElementById('input-weather').value;
 
                 if(!road) {
-                    this.showNotif("Harap isi nama jalan!");
+                    this.showNotif("Tolonk isi nama jalanny!");
                     return;
                 }
 
-                this.counts = { motor: 0, mobil: 0 };
-                document.getElementById('count-motor').innerText = "0";
-                document.getElementById('count-mobil').innerText = "0";
+                // Reset counts
+                this.counts = { motor: 0, becak: 0, mobil: 0, pickup: 0, van: 0, truk: 0, tronton: 0 };
+                Object.keys(this.counts).forEach(key => {
+                    document.getElementById(`count-${key}`).innerText = "0";
+                });
+                
                 document.getElementById('label-active-road').innerText = road;
                 document.getElementById('label-active-direction').innerText = `Arah: ${direction}`;
                 
@@ -565,7 +703,12 @@ window.app = {
                         weather: weather,
                         status: 'active',
                         motorCount: 0,
+                        becakCount: 0,
                         mobilCount: 0,
+                        pickupCount: 0,
+                        vanCount: 0,
+                        trukCount: 0,
+                        trontonCount: 0,
                         startTime: now.toISOString()
                     };
                     saved.unshift(newSurvey);
@@ -578,7 +721,7 @@ window.app = {
                     this.showScreen('counting');
                     this.showNotif("Survei dimulai!");
                 } catch (e) {
-                    this.showNotif("Terjadi kesalahan penyimpanan lokal.");
+                    this.showNotif("Terjadi kesalahan penyimpanan lokal :(");
                 }
             },
 
@@ -604,7 +747,12 @@ window.app = {
                     const index = saved.findIndex(item => item.id === this.currentSurveyId);
                     if(index !== -1) {
                         saved[index].motorCount = this.counts.motor;
+                        saved[index].becakCount = this.counts.becak;
                         saved[index].mobilCount = this.counts.mobil;
+                        saved[index].pickupCount = this.counts.pickup;
+                        saved[index].vanCount = this.counts.van;
+                        saved[index].trukCount = this.counts.truk;
+                        saved[index].trontonCount = this.counts.tronton;
                         localStorage.setItem('traffic_surveys', JSON.stringify(saved));
                     }
                 } catch (e) {}
@@ -637,7 +785,12 @@ window.app = {
                         saved[index].status = 'completed';
                         saved[index].endTime = endTimeStr;
                         saved[index].motorCount = this.counts.motor;
+                        saved[index].becakCount = this.counts.becak;
                         saved[index].mobilCount = this.counts.mobil;
+                        saved[index].pickupCount = this.counts.pickup;
+                        saved[index].vanCount = this.counts.van;
+                        saved[index].trukCount = this.counts.truk;
+                        saved[index].trontonCount = this.counts.tronton;
                         localStorage.setItem('traffic_surveys', JSON.stringify(saved));
                     }
 
@@ -651,17 +804,33 @@ window.app = {
                     if (mins > 0 || hrs === 0) duration.push(`${mins} menit`);
 
                     document.getElementById('summary-time').innerText = duration.join(' ');
-                    document.getElementById('summary-motor').innerText = this.counts.motor;
-                    document.getElementById('summary-mobil').innerText = this.counts.mobil;
+                    
+                    const cRingan = this.counts.motor + this.counts.becak;
+                    const cSedang = this.counts.mobil + this.counts.pickup + this.counts.van;
+                    const cBerat = this.counts.truk + this.counts.tronton;
+                    
+                    document.getElementById('sum-cat-ringan').innerText = cRingan;
+                    document.getElementById('sum-cat-sedang').innerText = cSedang;
+                    document.getElementById('sum-cat-berat').innerText = cBerat;
+                    
+                    document.getElementById('sum-motor').innerText = this.counts.motor;
+                    document.getElementById('sum-becak').innerText = this.counts.becak;
+                    document.getElementById('sum-mobil').innerText = this.counts.mobil;
+                    document.getElementById('sum-pickup').innerText = this.counts.pickup;
+                    document.getElementById('sum-van').innerText = this.counts.van;
+                    document.getElementById('sum-truk').innerText = this.counts.truk;
+                    document.getElementById('sum-tronton').innerText = this.counts.tronton;
+                    
+                    document.getElementById('sum-grand').innerText = (cRingan + cSedang + cBerat);
 
                     this.currentSurveyId = null;
                     this.activeDocData = null;
                     this.currentStartTime = null;
                     
-                    this.showNotif("Survei selesai!");
+                    this.showNotif("Survei selesai, yey!");
                     this.showScreen('summary');
                 } catch (e) {
-                    this.showNotif("Gagal menyimpan data akhir.");
+                    this.showNotif("Gagal menyimpan data :(");
                 }
             },
 
@@ -691,7 +860,7 @@ window.app = {
                     this.rawRecords = records;
                     this.renderFilteredRecaps();
                 } catch (e) {
-                    document.getElementById('recap-list').innerHTML = `<p class="text-center text-pink-500 text-sm mt-10">Gagal memuat data lokal.</p>`;
+                    document.getElementById('recap-list').innerHTML = `<p class="text-center text-pink-500 text-sm mt-10">Gagal memuat data lokal :(</p>`;
                 }
             },
 
@@ -700,7 +869,7 @@ window.app = {
                 let filterHtml = '';
                 
                 if(this.allSurveyors.size === 0) {
-                    filterHtml = '<span class="text-xs text-gray-400">Belum ada data user</span>';
+                    filterHtml = '<span class="text-xs text-gray-400">Belum ada data!</span>';
                 } else {
                     this.allSurveyors.forEach(surveyor => {
                         const isActive = this.activeUserFilters.size === 0 || this.activeUserFilters.has(surveyor);
@@ -716,13 +885,19 @@ window.app = {
                 const filtered = this.rawRecords.filter(r => this.activeUserFilters.size === 0 || this.activeUserFilters.has(r.surveyor));
 
                 let html = '';
-                let totalMotor = 0;
-                let totalMobil = 0;
+                let totalAllRingan = 0;
+                let totalAllSedang = 0;
+                let totalAllBerat = 0;
 
                 filtered.forEach(data => {
+                    const cRingan = (data.motorCount || 0) + (data.becakCount || 0);
+                    const cSedang = (data.mobilCount || 0) + (data.pickupCount || 0) + (data.vanCount || 0);
+                    const cBerat = (data.trukCount || 0) + (data.trontonCount || 0);
+
                     if(data.status === 'completed') {
-                        totalMotor += (data.motorCount || 0);
-                        totalMobil += (data.mobilCount || 0);
+                        totalAllRingan += cRingan;
+                        totalAllSedang += cSedang;
+                        totalAllBerat += cBerat;
                     }
 
                     const timeDisplay = (data.status === 'completed' && data.endTime) 
@@ -748,20 +923,32 @@ window.app = {
                                 <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-cloud-sun mr-1"></i> ${data.weather || '-'}</p>
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <div class="flex-1 bg-matcha-50/50 rounded-xl p-2 flex items-center justify-between border border-matcha-100">
-                                <div class="flex items-center gap-2 text-matcha-600">
-                                    <i class="fas fa-motorcycle"></i><span class="text-xs font-medium">Motor</span>
-                                </div>
-                                <span class="font-bold text-matcha-700">${data.motorCount || 0}</span>
+                        
+                        <div class="grid grid-cols-3 gap-2 text-[10px] text-gray-600 mb-1">
+                            <!-- Ringan -->
+                            <div class="bg-matcha-50/50 p-1.5 rounded-lg border border-matcha-100 flex flex-col">
+                                <div class="font-semibold text-matcha-700 mb-1 border-b border-matcha-100 pb-1 flex justify-between"><span>Ringan</span> <span>${cRingan}</span></div>
+                                <div class="flex justify-between"><span>Motor</span> <span>${data.motorCount || 0}</span></div>
+                                <div class="flex justify-between"><span>Becak</span> <span>${data.becakCount || 0}</span></div>
                             </div>
-                            <div class="flex-1 bg-pink-50/50 rounded-xl p-2 flex items-center justify-between border border-pink-100">
-                                <div class="flex items-center gap-2 text-pink-600">
-                                    <i class="fas fa-car-side"></i><span class="text-xs font-medium">Mobil</span>
-                                </div>
-                                <span class="font-bold text-pink-700">${data.mobilCount || 0}</span>
+                            <!-- Sedang -->
+                            <div class="bg-pink-50/50 p-1.5 rounded-lg border border-pink-100 flex flex-col">
+                                <div class="font-semibold text-pink-700 mb-1 border-b border-pink-100 pb-1 flex justify-between"><span>Sedang</span> <span>${cSedang}</span></div>
+                                <div class="flex justify-between"><span>Mobil</span> <span>${data.mobilCount || 0}</span></div>
+                                <div class="flex justify-between"><span>Pick Up</span> <span>${data.pickupCount || 0}</span></div>
+                                <div class="flex justify-between"><span>Van</span> <span>${data.vanCount || 0}</span></div>
+                            </div>
+                            <!-- Berat -->
+                            <div class="bg-matcha-50/50 p-1.5 rounded-lg border border-matcha-100 flex flex-col">
+                                <div class="font-semibold text-matcha-700 mb-1 border-b border-matcha-100 pb-1 flex justify-between"><span>Berat</span> <span>${cBerat}</span></div>
+                                <div class="flex justify-between"><span>Truk</span> <span>${data.trukCount || 0}</span></div>
+                                <div class="flex justify-between"><span>Tronton</span> <span>${data.trontonCount || 0}</span></div>
                             </div>
                         </div>
+                        <div class="flex justify-end mt-2">
+                            <div class="text-[11px] font-bold text-gray-700 bg-gray-50 rounded px-2 py-1 border border-gray-100">Total Kendaraan: ${cRingan + cSedang + cBerat}</div>
+                        </div>
+                        
                         ${actionButtons}
                     </div>`;
                 });
@@ -771,8 +958,9 @@ window.app = {
                 }
 
                 listContainer.innerHTML = html;
-                document.getElementById('total-all-motor').innerText = totalMotor.toLocaleString('id-ID');
-                document.getElementById('total-all-mobil').innerText = totalMobil.toLocaleString('id-ID');
+                document.getElementById('total-all-ringan').innerText = totalAllRingan.toLocaleString('id-ID');
+                document.getElementById('total-all-sedang').innerText = totalAllSedang.toLocaleString('id-ID');
+                document.getElementById('total-all-berat').innerText = totalAllBerat.toLocaleString('id-ID');
             },
 
             confirmDelete: function(id) {
@@ -797,10 +985,10 @@ window.app = {
                     saved = saved.filter(item => item.id !== targetId);
                     localStorage.setItem('traffic_surveys', JSON.stringify(saved));
                     
-                    this.showNotif("Data berhasil dihapus!");
+                    this.showNotif("Sudah dihapus!");
                     this.loadRecaps();
                 } catch(e) {
-                    this.showNotif("Gagal menghapus data.");
+                    this.showNotif("Gagal hapus data :(");
                 }
             },
 
@@ -809,9 +997,15 @@ window.app = {
                 if(!survey) return;
                 this.editTargetId = id;
                 document.getElementById('edit-road').value = survey.roadName || '';
-                document.getElementById('edit-direction').value = survey.direction || '';
+                
+                // Set values safely
                 document.getElementById('edit-motor').value = Math.max(0, survey.motorCount || 0);
+                document.getElementById('edit-becak').value = Math.max(0, survey.becakCount || 0);
                 document.getElementById('edit-mobil').value = Math.max(0, survey.mobilCount || 0);
+                document.getElementById('edit-pickup').value = Math.max(0, survey.pickupCount || 0);
+                document.getElementById('edit-van').value = Math.max(0, survey.vanCount || 0);
+                document.getElementById('edit-truk').value = Math.max(0, survey.trukCount || 0);
+                document.getElementById('edit-tronton').value = Math.max(0, survey.trontonCount || 0);
 
                 const modal = document.getElementById('modal-edit');
                 const content = document.getElementById('modal-edit-content');
@@ -828,11 +1022,16 @@ window.app = {
                 if(!this.editTargetId) return;
                 const targetId = this.editTargetId;
                 const road = document.getElementById('edit-road').value.trim();
-                const direction = document.getElementById('edit-direction').value.trim() || "-";
-                const motor = Math.max(0, parseInt(document.getElementById('edit-motor').value) || 0);
-                const mobil = Math.max(0, parseInt(document.getElementById('edit-mobil').value) || 0);
 
-                if(!road) return this.showNotif("Nama jalan tidak boleh kosong");
+                const mMotor = Math.max(0, parseInt(document.getElementById('edit-motor').value) || 0);
+                const mBecak = Math.max(0, parseInt(document.getElementById('edit-becak').value) || 0);
+                const mMobil = Math.max(0, parseInt(document.getElementById('edit-mobil').value) || 0);
+                const mPickup = Math.max(0, parseInt(document.getElementById('edit-pickup').value) || 0);
+                const mVan = Math.max(0, parseInt(document.getElementById('edit-van').value) || 0);
+                const mTruk = Math.max(0, parseInt(document.getElementById('edit-truk').value) || 0);
+                const mTronton = Math.max(0, parseInt(document.getElementById('edit-tronton').value) || 0);
+
+                if(!road) return this.showNotif("Nama jalan jangan kosong bray");
 
                 this.closeEditModal();
                 try {
@@ -840,15 +1039,19 @@ window.app = {
                     const index = saved.findIndex(item => item.id === targetId);
                     if(index !== -1) {
                         saved[index].roadName = road;
-                        saved[index].direction = direction;
-                        saved[index].motorCount = motor;
-                        saved[index].mobilCount = mobil;
+                        saved[index].motorCount = mMotor;
+                        saved[index].becakCount = mBecak;
+                        saved[index].mobilCount = mMobil;
+                        saved[index].pickupCount = mPickup;
+                        saved[index].vanCount = mVan;
+                        saved[index].trukCount = mTruk;
+                        saved[index].trontonCount = mTronton;
                         localStorage.setItem('traffic_surveys', JSON.stringify(saved));
                     }
-                    this.showNotif("Perubahan disimpan!");
+                    this.showNotif("Sudah diubah!");
                     this.loadRecaps();
                 } catch(e) {
-                    this.showNotif("Gagal menyimpan perubahan.");
+                    this.showNotif("Gagal menyimpan :(");
                 }
             }
         };
@@ -856,4 +1059,4 @@ window.app = {
         window.addEventListener('DOMContentLoaded', () => app.init());
     </script>
 </body>
-</html>
+    </html>
